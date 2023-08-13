@@ -28,7 +28,6 @@ class FoodFragment : Fragment() {
     private lateinit var sharedViewModel: FoodSharedViewModel
 
 
-
     private var type = "breakfast"
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,27 +40,35 @@ class FoodFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         sharedViewModel = ViewModelProvider(requireActivity())[FoodSharedViewModel::class.java]
+        sharedViewModel.updateAllFoodLists()
 
+        sharedViewModel.breakFastCalories.observe(viewLifecycleOwner) {
+            binding.breakfast.text = "Breakfast: $it"
+        }
+        sharedViewModel.lunchCalories.observe(viewLifecycleOwner) {
+            binding.lunch.text = "Lunch: $it"
+        }
+        sharedViewModel.snacksCalories.observe(viewLifecycleOwner) {
+            binding.snacks.text = "Snacks: $it"
+        }
+        sharedViewModel.dinnerCalories.observe(viewLifecycleOwner) {
+            binding.dinner.text = "Dinner: $it"
+        }
 
-
-
-
-
-
-        binding.card1.setOnClickListener {
-            type="breakfast"
+        binding.cardView3.setOnClickListener {
+            type = "breakfast"
             moveToFoodListActivity(type)
         }
-        binding.card2.setOnClickListener {
-            type="lunch"
+        binding.cardView4.setOnClickListener {
+            type = "lunch"
             moveToFoodListActivity(type)
         }
-        binding.card3.setOnClickListener {
-            type="snacks"
+        binding.cardView5.setOnClickListener {
+            type = "snacks"
             moveToFoodListActivity(type)
         }
-        binding.card4.setOnClickListener {
-            type="dinner"
+        binding.cardView6.setOnClickListener {
+            type = "dinner"
             moveToFoodListActivity(type)
         }
     }
@@ -69,10 +76,8 @@ class FoodFragment : Fragment() {
     private fun moveToFoodListActivity(type: String) {
 
         sharedViewModel.updateType(type)
-        val REQUEST_CODE_ACTIVITY = 1
         val intent = Intent(requireContext(), FoodList::class.java)
-        startActivityForResult(intent, REQUEST_CODE_ACTIVITY)
+        intent.putExtra("type", type)
+        startActivity(intent)
     }
-
-
 }

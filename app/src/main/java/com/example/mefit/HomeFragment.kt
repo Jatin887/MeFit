@@ -83,10 +83,9 @@ class HomeFragment : Fragment() {
                 val challengeDuration = document.get("duration").toString().toInt()
                 val challengeCalories = document.get("calories").toString().toInt()
                 val challengeRewards = document.get("rewards").toString().toInt()
-                Log.d("HomeFragment", "onViewCreated: ${!onGoingChallenges.contains(challengeID)} => ${!completedChallenges.contains(challengeID)}")
                 if (!onGoingChallenges.contains(challengeID) && !completedChallenges.contains(challengeID) ){
                     suggestedChallengesModel.add(Challenge(challengeName, challengeDescription, challengeID, challengeDuration, challengeCalories, challengeRewards))
-                    Log.d("here---", "onViewCreated: ${suggestedChallengesModel.size}")
+
                 }
                 else if (onGoingChallenges.contains(challengeID)){
                     onGoingChallengesModel.add(Challenge(challengeName, challengeDescription, challengeID, challengeDuration, challengeCalories, challengeRewards))
@@ -99,7 +98,7 @@ class HomeFragment : Fragment() {
             binding.onGoingChallengeList.layoutManager = LinearLayoutManager(requireContext())
             binding.suggestedChallengeList.adapter = ChallengeAdapter(suggestedChallengesModel, requireContext())
             binding.onGoingChallengeList.adapter = ChallengeAdapter(onGoingChallengesModel, requireContext())
-            Log.d("here---", "onViewCreated: ${suggestedChallengesModel.size}")
+
         }
             .addOnFailureListener{
                 Log.d("HomeFragment", "onViewCreated: ${it.message}")

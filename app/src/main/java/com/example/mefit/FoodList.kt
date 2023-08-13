@@ -31,10 +31,11 @@ class FoodList : AppCompatActivity() {
 
         sharedViewModel = ViewModelProvider(this)[FoodSharedViewModel::class.java]
 
+        sharedViewModel.updateAllFoodLists()
         sharedViewModel.foodList.observe(this) { foodList ->
+            Log.d("FoodList-----", foodList.toString())
             binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
             binding.foodRecyclerView.adapter = FoodAdapter(foodList, sharedViewModel)
-
         }
 
         //make api call from retrofit and show data
@@ -72,12 +73,12 @@ class FoodList : AppCompatActivity() {
                         //change this to food list and then show in recycler view
 
                         for(food in foodList){
-                            if(food.foodNutrients.size == 0 || food.description == null || food.fdcId == null) {
+                            if(food.foodNutrients.isEmpty() || food.description == null || food.fdcId == null) {
                                 continue
                             }
-                            Log.d("FoodList----", "fetchFoodList: ${food}")
-                            val item = Food(food.fdcId,food.description, food.foodNutrients[0].amount.toInt())
-                            Log.d("FoodList----", "fetchFoodList: ${item}")
+
+                            val item = Food(food.fdcId.toLong(),food.description, food.foodNutrients[0].amount.toLong())
+
                             sharedViewModel.addAllFood(item)
                         }
 

@@ -42,7 +42,9 @@ class Profile : AppCompatActivity() {
                 else -> ""
             }
 
-
+            //intialise a list of food with values 0
+            val foodList = emptyList<Food>()
+            foodList.plus(Food(0,"Apple", 0))
             if (selectedGoal.isNotEmpty()) {
                 val userData = hashMapOf(
                     "name" to name,
@@ -54,10 +56,10 @@ class Profile : AppCompatActivity() {
                     "totalCalories" to calculateCalories(height.toDouble(), weight.toDouble(), selectedGoal, age.toInt()),
                     "ongoingChallenged" to arrayListOf<String>(),
                     "completedChallenges" to arrayListOf<String>(),
-                    "breakfastConsumed" to arrayListOf<Food>(),
-                    "lunchConsumed" to arrayListOf<Food>(),
-                    "snacksConsumed" to arrayListOf<Food>(),
-                    "dinnerConsumed" to arrayListOf<Food>(),
+                    "breakfastConsumed" to foodList,
+                    "lunchConsumed" to foodList,
+                    "snacksConsumed" to foodList,
+                    "dinnerConsumed" to foodList,
                     "rewards" to 0
                 )
 

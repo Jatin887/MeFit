@@ -1,5 +1,6 @@
 package com.example.mefit
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mefit.model.Food
@@ -14,21 +15,22 @@ class FoodSharedViewModel: ViewModel(){
     private var document = db.collection("users").document(user.uid)
 
 
-    private var breakfastList= MutableLiveData<List<Food>>()
-    private var lunchList= MutableLiveData<List<Food>>()
-    private var snacksList= MutableLiveData<List<Food>>()
-    private var dinnerList= MutableLiveData<List<Food>>()
+    var breakfastList: MutableLiveData<List<Food>> = MutableLiveData()
+    var lunchList= MutableLiveData<List<Food>>()
+    var snacksList= MutableLiveData<List<Food>>()
+    var dinnerList= MutableLiveData<List<Food>>()
 
-    var breakFastCalories = MutableLiveData<Int>()
-    var lunchCalories = MutableLiveData<Int>()
-    var snacksCalories = MutableLiveData<Int>()
-    var dinnerCalories = MutableLiveData<Int>()
-    var totalCaloriesConsumed = MutableLiveData<Int>()
-    var remainingCalories = MutableLiveData<Int>()
+    var breakFastCalories = MutableLiveData<Long>().apply { value = 0 }
+    var lunchCalories = MutableLiveData<Long>().apply { value = 0 }
+    var snacksCalories = MutableLiveData<Long>().apply { value = 0 }
+    var dinnerCalories = MutableLiveData<Long>().apply { value = 0 }
+    var totalCaloriesConsumed = MutableLiveData<Long>().apply { value = 0 }
+    var remainingCalories = MutableLiveData<Long>().apply { value = 0 }
 
 
 
-    var type: String = "breakfast"
+
+    var type = MutableLiveData<String>().apply { value = "breakfast" }
     var foodList = MutableLiveData<List<Food>>()
     var allFoodList = MutableLiveData<List<Food>>()
 
@@ -58,7 +60,7 @@ class FoodSharedViewModel: ViewModel(){
 
     fun addFoodToFirebase(food: Food) {
         addFood(food)
-        document.update(type + "Consumed", foodList.value)
+        document.update(type.value + "Consumed", foodList.value)
         updateAllFoodLists()
     }
 
@@ -70,20 +72,42 @@ class FoodSharedViewModel: ViewModel(){
             updatedList.remove(food)
             foodList.value = updatedList
         }
-        db.collection("users").document(user.uid).update(type + "Consumed", foodList.value)
+        db.collection("users").document(user.uid).update(type.value + "Consumed", foodList.value)
         updateAllFoodLists()
     }
 
     fun updateAllFoodLists(){
 
         document.get().addOnSuccessListener {
-            breakfastList = it["breakfastConsumed"] as MutableLiveData<List<Food>>
-            lunchList = it["lunchConsumed"] as MutableLiveData<List<Food>>
-            snacksList = it["snacksConsumed"] as MutableLiveData<List<Food>>
-            dinnerList = it["dinnerConsumed"] as MutableLiveData<List<Food>>
+            val breakfastConsumedList = it.get("breakfastConsumed") as? List<Map<String, Any>>
+            if (breakfastConsumedList != null) {
+                // Convert each Map to your Food model
+                val breakfastFoodList = breakfastConsumedList.map { foodMap ->
+                    Food(
+                        id = foodMap["id"] as Long,
+                        name = foodMap["name"] as String,
+                        calories = foodMap["calories"] as Long,
+                    )
+                }
+
+                breakfastList.postValue(breakfastFoodList)
+
+            }
+
+            if(breakfastList.value!=null){
+                for(food in breakfastList.value!!){
+                    breakFastCalories.value = breakFastCalories.value?.plus(food.calories)
+                }
+            }
 
 
-            for(food in breakfastList.value!!){
+            lunchList.value = it["lunchConsumed"] as List<Food>
+            snacksList.value = it["snacksConsumed"] as List<Food>
+            dinnerList.value = it["dinnerConsumed"] as List<Food>
+
+
+
+            /*for(food in breakfastList.value!!){
                 breakFastCalories.value = breakFastCalories.value?.plus(food.calories)
             }
             for(food in lunchList.value!!){
@@ -94,18 +118,18 @@ class FoodSharedViewModel: ViewModel(){
             }
             for(food in dinnerList.value!!){
                 dinnerCalories.value = dinnerCalories.value?.plus(food.calories)
-            }
+            }*/
             totalCaloriesConsumed.value = breakFastCalories.value?.plus(lunchCalories.value!!)?.plus(snacksCalories.value!!)?.plus(dinnerCalories.value!!)
-            var totalCalories = it["totalCalories"] as Int
-            remainingCalories.value = totalCalories - totalCaloriesConsumed.value!!
-            document.update("consumedCalories", remainingCalories.value)
+            val totalCalories = it.getLong("totalCalories") ?: 0
+            remainingCalories.value = (totalCalories - totalCaloriesConsumed.value!!)
+            document.update("consumedCalories", totalCaloriesConsumed.value!!)
 
         }
     }
 
     fun updateType(type: String) {
-        this.type = type
-
+        this.type.postValue(type)
+        Log.d("FoodSharedViewModel", "updateType: $type")
         when(type){
             "breakfast" -> foodList = breakfastList
             "lunch" -> foodList = lunchList
