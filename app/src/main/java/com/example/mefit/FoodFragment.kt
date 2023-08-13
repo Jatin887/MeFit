@@ -28,7 +28,7 @@ class FoodFragment : Fragment() {
     private lateinit var sharedViewModel: FoodSharedViewModel
 
 
-    private var type = "breakfast"
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -41,6 +41,21 @@ class FoodFragment : Fragment() {
 
         sharedViewModel = ViewModelProvider(requireActivity())[FoodSharedViewModel::class.java]
         sharedViewModel.updateAllFoodLists()
+
+
+        sharedViewModel.totalCaloriesConsumed.observe(viewLifecycleOwner) {
+          binding.consumedValueTV.text = it.toString()
+        }
+
+        sharedViewModel.remainingCalories.observe(viewLifecycleOwner) {
+          binding.remainingValueTV.text = it.toString()
+        }
+
+        sharedViewModel.calorieGoal.observe(viewLifecycleOwner) {
+          binding.calorieGoal.text = it.toString()
+        }
+
+
 
         sharedViewModel.breakFastCalories.observe(viewLifecycleOwner) {
             binding.breakfast.text = "Breakfast: $it"
@@ -55,29 +70,30 @@ class FoodFragment : Fragment() {
             binding.dinner.text = "Dinner: $it"
         }
 
+        var type = ""
         binding.cardView3.setOnClickListener {
             type = "breakfast"
-            moveToFoodListActivity(type)
+            moveToFoodListActivity(type, sharedViewModel)
         }
         binding.cardView4.setOnClickListener {
             type = "lunch"
-            moveToFoodListActivity(type)
+            moveToFoodListActivity(type, sharedViewModel)
         }
         binding.cardView5.setOnClickListener {
             type = "snacks"
-            moveToFoodListActivity(type)
+            moveToFoodListActivity(type, sharedViewModel)
         }
         binding.cardView6.setOnClickListener {
             type = "dinner"
-            moveToFoodListActivity(type)
+            moveToFoodListActivity(type, sharedViewModel)
         }
     }
 
-    private fun moveToFoodListActivity(type: String) {
+    private fun moveToFoodListActivity(type_: String, _sharedViewModel: FoodSharedViewModel) {
 
-        sharedViewModel.updateType(type)
+        _sharedViewModel.updateType(type_)
         val intent = Intent(requireContext(), FoodList::class.java)
-        intent.putExtra("type", type)
+        intent.putExtra("type", type_)
         startActivity(intent)
     }
 }

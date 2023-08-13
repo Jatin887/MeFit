@@ -1,6 +1,6 @@
 package com.example.mefit
 
-import android.os.Build
+
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -31,12 +31,54 @@ class FoodList : AppCompatActivity() {
 
         sharedViewModel = ViewModelProvider(this)[FoodSharedViewModel::class.java]
 
+        //get the arguments from the intent
+        val type = intent.getStringExtra("type")
+        sharedViewModel.type.postValue(type)
         sharedViewModel.updateAllFoodLists()
-        sharedViewModel.foodList.observe(this) { foodList ->
-            Log.d("FoodList-----", foodList.toString())
-            binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
-            binding.foodRecyclerView.adapter = FoodAdapter(foodList, sharedViewModel)
+
+        sharedViewModel.breakFastCalories.observe(this) {
+            Log.d("breakfastcal", "Breakfast: $it")
         }
+
+        sharedViewModel.breakfastList.observe(this) {
+            Log.d("breakfastlist", "Breakfast: $it")
+        }
+
+        if(type=="breakfast"){
+            sharedViewModel.breakfastList.observe(this) {
+                binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
+                binding.foodRecyclerView.adapter = FoodAdapter(it, sharedViewModel)
+                sharedViewModel.foodList.postValue(it)
+            }
+        }
+        else if(type=="lunch"){
+            sharedViewModel.lunchList.observe(this) {
+                binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
+                binding.foodRecyclerView.adapter = FoodAdapter(it, sharedViewModel)
+                sharedViewModel.foodList.postValue(it)
+            }
+        }
+        else if(type=="snacks"){
+            sharedViewModel.snacksList.observe(this) {
+                binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
+                binding.foodRecyclerView.adapter = FoodAdapter(it, sharedViewModel)
+                sharedViewModel.foodList.postValue(it)
+            }
+        }
+        else if(type=="dinner"){
+            sharedViewModel.dinnerList.observe(this) {
+                binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
+                binding.foodRecyclerView.adapter = FoodAdapter(it, sharedViewModel)
+                sharedViewModel.foodList.postValue(it)
+            }
+        }
+
+
+        sharedViewModel.type.observe(this){
+            binding.caloriesConsumedText.text = it.toString().uppercase()
+        }
+
+
 
         //make api call from retrofit and show data
         val retrofit = Retrofit.Builder()

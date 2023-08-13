@@ -26,11 +26,12 @@ class FoodSharedViewModel: ViewModel(){
     var dinnerCalories = MutableLiveData<Long>().apply { value = 0 }
     var totalCaloriesConsumed = MutableLiveData<Long>().apply { value = 0 }
     var remainingCalories = MutableLiveData<Long>().apply { value = 0 }
+    var calorieGoal= MutableLiveData<Long>().apply { value = 0 }
 
 
 
 
-    var type = MutableLiveData<String>().apply { value = "breakfast" }
+    var type = MutableLiveData<String>()
     var foodList = MutableLiveData<List<Food>>()
     var allFoodList = MutableLiveData<List<Food>>()
 
@@ -81,7 +82,6 @@ class FoodSharedViewModel: ViewModel(){
         document.get().addOnSuccessListener {
             val breakfastConsumedList = it.get("breakfastConsumed") as? List<Map<String, Any>>
             if (breakfastConsumedList != null) {
-                // Convert each Map to your Food model
                 val breakfastFoodList = breakfastConsumedList.map { foodMap ->
                     Food(
                         id = foodMap["id"] as Long,
@@ -90,51 +90,100 @@ class FoodSharedViewModel: ViewModel(){
                     )
                 }
 
+                Log.d("FoodSharedViewModel", "breakfastFoodList: $breakfastFoodList")
                 breakfastList.postValue(breakfastFoodList)
 
-            }
-
-            if(breakfastList.value!=null){
-                for(food in breakfastList.value!!){
-                    breakFastCalories.value = breakFastCalories.value?.plus(food.calories)
+                if(breakfastFoodList.size>0){
+                    breakFastCalories.value = 0
+                    for(food in breakfastFoodList){
+                        breakFastCalories.value = breakFastCalories.value?.plus(food.calories)
+                    }
                 }
+
             }
 
+            val lunchConsumedList = it.get("lunchConsumed") as? List<Map<String, Any>>
+            if (lunchConsumedList != null) {
+                val lunchFoodList = lunchConsumedList.map { foodMap ->
+                    Food(
+                        id = foodMap["id"] as Long,
+                        name = foodMap["name"] as String,
+                        calories = foodMap["calories"] as Long,
+                    )
+                }
 
-            lunchList.value = it["lunchConsumed"] as List<Food>
-            snacksList.value = it["snacksConsumed"] as List<Food>
-            dinnerList.value = it["dinnerConsumed"] as List<Food>
+                Log.d("FoodSharedViewModel", "lunchFoodList: $lunchFoodList")
+                lunchList.postValue(lunchFoodList)
 
+                if(lunchFoodList.size>0){
+                    lunchCalories.value = 0
+                    for(food in lunchFoodList){
+                        lunchCalories.value = lunchCalories.value?.plus(food.calories)
+                    }
+                }
 
-
-            /*for(food in breakfastList.value!!){
-                breakFastCalories.value = breakFastCalories.value?.plus(food.calories)
             }
-            for(food in lunchList.value!!){
-                lunchCalories.value = lunchCalories.value?.plus(food.calories)
+
+            val snacksConsumedList = it.get("snacksConsumed") as? List<Map<String, Any>>
+            if (snacksConsumedList != null) {
+                val snacksFoodList = snacksConsumedList.map { foodMap ->
+                    Food(
+                        id = foodMap["id"] as Long,
+                        name = foodMap["name"] as String,
+                        calories = foodMap["calories"] as Long,
+                    )
+                }
+
+                Log.d("FoodSharedViewModel", "snacksFoodList: $snacksFoodList")
+                snacksList.postValue(snacksFoodList)
+
+                if(snacksFoodList.size>0){
+                    snacksCalories.value = 0
+                    for(food in snacksFoodList){
+                        snacksCalories.value = snacksCalories.value?.plus(food.calories)
+                    }
+                }
+
             }
-            for(food in snacksList.value!!){
-                snacksCalories.value = snacksCalories.value?.plus(food.calories)
+
+            val dinnerConsumedList = it.get("dinnerConsumed") as? List<Map<String, Any>>
+            if (dinnerConsumedList != null) {
+                val dinnerFoodList = dinnerConsumedList.map { foodMap ->
+                    Food(
+                        id = foodMap["id"] as Long,
+                        name = foodMap["name"] as String,
+                        calories = foodMap["calories"] as Long,
+                    )
+                }
+
+                Log.d("FoodSharedViewModel", "dinnerFoodList: $dinnerFoodList")
+                dinnerList.postValue(dinnerFoodList)
+
+                if(dinnerFoodList.size>0){
+                    dinnerCalories.value = 0
+                    for(food in dinnerFoodList){
+                        dinnerCalories.value = dinnerCalories.value?.plus(food.calories)
+                    }
+                }
+
             }
-            for(food in dinnerList.value!!){
-                dinnerCalories.value = dinnerCalories.value?.plus(food.calories)
-            }*/
             totalCaloriesConsumed.value = breakFastCalories.value?.plus(lunchCalories.value!!)?.plus(snacksCalories.value!!)?.plus(dinnerCalories.value!!)
             val totalCalories = it.getLong("totalCalories") ?: 0
+            calorieGoal.value = totalCalories
             remainingCalories.value = (totalCalories - totalCaloriesConsumed.value!!)
             document.update("consumedCalories", totalCaloriesConsumed.value!!)
 
         }
     }
 
-    fun updateType(type: String) {
-        this.type.postValue(type)
-        Log.d("FoodSharedViewModel", "updateType: $type")
-        when(type){
-            "breakfast" -> foodList = breakfastList
-            "lunch" -> foodList = lunchList
-            "snacks" -> foodList = snacksList
-            "dinner" -> foodList = dinnerList
-        }
+    fun updateType(type_: String) {
+        /*type.postValue(type_)
+
+        when(type_){
+            "breakfast" -> foodList.postValue(breakfastList.value)
+            "lunch" -> foodList.postValue(lunchList.value)
+            "snacks" -> foodList.postValue(snacksList.value)
+            "dinner" -> foodList.postValue(dinnerList.value)
+        }*/
     }
 }
