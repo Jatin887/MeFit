@@ -1,6 +1,12 @@
 plugins {
     id 'com.android.application'
+    id("com.google.gms.google-services")
+    id 'kotlin-android'
 }
+
+def apikeyPropertiesFile = rootProject.file("apikey.properties")
+def apikeyProperties = new Properties()
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 
 android {
     namespace 'com.example.mefit'
@@ -13,10 +19,12 @@ android {
         versionCode 1
         versionName "1.0"
 
+        buildConfigField("String", "API_KEY", apikeyProperties['API_KEY'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures{
-        viewBinding true
+        dataBinding = true
+        viewBinding = true
     }
 
     buildTypes {
@@ -32,8 +40,8 @@ android {
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:31.0.2')
-
+    implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
     // Firebase Authentication library
     implementation 'com.google.firebase:firebase-auth'
 
@@ -46,7 +54,14 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0' // Updated to a newer version
-    implementation 'com.google.code.gson:gson:2.8.6' // Updated to a newer version
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.7.0'// Updated to a newer version
     testImplementation 'junit:junit:4.12' // Fixed quote issue
+
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+
 
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:title="Home"
+        android:id="@+id/home"
+        android:icon="@drawable/ic_home"/>
+    <item android:title="Food"
+        android:id="@+id/food"
+        android:icon="@drawable/ic_food"/>
+    <item android:title="Challenge"
+        android:id="@+id/challenge"
+        android:icon="@drawable/ic_challenge"/>
+
+    <item android:title="Locate Workout"
+        android:id="@+id/location"
+        android:icon="@drawable/ic_location"/>
+</menu>
