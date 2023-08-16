@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import com.example.mefit.databinding.ActivityProfileBinding
 import com.example.mefit.model.Food
+import com.example.mefit.model.UserChallenge
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -54,8 +55,7 @@ class Profile : AppCompatActivity() {
                     "goal" to selectedGoal,
                     "consumedCalories" to 0,
                     "totalCalories" to calculateCalories(height.toDouble(), weight.toDouble(), selectedGoal, age.toInt()),
-                    "ongoingChallenged" to arrayListOf<String>(),
-                    "completedChallenges" to arrayListOf<String>(),
+                    "userChallenges" to arrayListOf<UserChallenge>(),
                     "breakfastConsumed" to foodList,
                     "lunchConsumed" to foodList,
                     "snacksConsumed" to foodList,

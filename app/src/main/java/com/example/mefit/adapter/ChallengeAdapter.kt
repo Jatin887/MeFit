@@ -7,8 +7,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mefit.R
 import com.example.mefit.model.Challenge
+import com.example.mefit.model.UserChallenge
 
-class ChallengeAdapter(private val challengeList: List<Challenge>, private val context: android.content.Context) :
+class ChallengeAdapter(private val challengeList: List<UserChallenge>, private val context: android.content.Context) :
     RecyclerView.Adapter<ChallengeAdapter.ChallengeViewHolder>() {
 
     class ChallengeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -4,10 +4,6 @@ plugins {
     id 'kotlin-android'
 }
 
-def apikeyPropertiesFile = rootProject.file("apikey.properties")
-def apikeyProperties = new Properties()
-apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
-
 android {
     namespace 'com.example.mefit'
     compileSdk 33
@@ -19,6 +15,11 @@ android {
         versionCode 1
         versionName "1.0"
 
+
+        def apikeyPropertiesFile = rootProject.file("apikey.properties")
+        def apikeyProperties = new Properties()
+        apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+ 
         buildConfigField("String", "API_KEY", apikeyProperties['API_KEY'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -62,6 +63,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
 
 }
