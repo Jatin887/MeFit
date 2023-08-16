@@ -1,9 +1,12 @@
 package com.example.mefit
 
-import android.util.Log
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.mefit.model.Food
+import com.example.mefit.model.UserChallenge
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -90,7 +93,7 @@ class FoodSharedViewModel: ViewModel(){
                     )
                 }
 
-                Log.d("FoodSharedViewModel", "breakfastFoodList: $breakfastFoodList")
+
                 breakfastList.postValue(breakfastFoodList)
 
                 if(breakfastFoodList.size>0){
@@ -112,7 +115,7 @@ class FoodSharedViewModel: ViewModel(){
                     )
                 }
 
-                Log.d("FoodSharedViewModel", "lunchFoodList: $lunchFoodList")
+
                 lunchList.postValue(lunchFoodList)
 
                 if(lunchFoodList.size>0){
@@ -134,7 +137,6 @@ class FoodSharedViewModel: ViewModel(){
                     )
                 }
 
-                Log.d("FoodSharedViewModel", "snacksFoodList: $snacksFoodList")
                 snacksList.postValue(snacksFoodList)
 
                 if(snacksFoodList.size>0){
@@ -156,7 +158,6 @@ class FoodSharedViewModel: ViewModel(){
                     )
                 }
 
-                Log.d("FoodSharedViewModel", "dinnerFoodList: $dinnerFoodList")
                 dinnerList.postValue(dinnerFoodList)
 
                 if(dinnerFoodList.size>0){
@@ -186,4 +187,9 @@ class FoodSharedViewModel: ViewModel(){
             "dinner" -> foodList.postValue(dinnerList.value)
         }*/
     }
+
+
+
+
+
 }

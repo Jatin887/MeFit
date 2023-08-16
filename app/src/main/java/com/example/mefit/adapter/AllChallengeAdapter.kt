@@ -1,6 +1,10 @@
 package com.example.mefit.adapter
 
 import android.content.Context
+import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.StyleSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,10 +25,9 @@ class AllChallengeAdapter (private val allChallengeList: List<Challenge>,
         val titleTextView: TextView = itemView.findViewById(R.id.allChallengeTitle)
         val descriptionTextView: TextView = itemView.findViewById(R.id.allChallengeDescription)
 
-        //setOnclicklistener to
+
         init {
             itemView.setOnClickListener {
-                Log.d("AllChallengesViewModel", "onLetsDoItClicked: ${allChallengeList[adapterPosition]}")
                 challengesViewModel.displayDialog(allChallengeList[adapterPosition],context)
 
             }
@@ -43,8 +46,20 @@ class AllChallengeAdapter (private val allChallengeList: List<Challenge>,
 
     override fun onBindViewHolder(holder: AllChallengeViewHolder, position: Int) {
         val currentChallenge = allChallengeList[position]
-        holder.titleTextView.text = currentChallenge.name + " (" + currentChallenge.rewards + " rewards)" + " (" + currentChallenge.duration + " days)"
+
+        val name = currentChallenge.name
+        val rewards = currentChallenge.rewards
+        val duration = currentChallenge.duration
+
+        val boldName = SpannableString(name)
+        boldName.setSpan(StyleSpan(Typeface.BOLD), 0, name.length, 0)
+
+        val formattedText = SpannableStringBuilder()
+            .append(boldName).append("\n")
+            .append("$rewards rewards\n")
+            .append("$duration days")
+
+        holder.titleTextView.text = formattedText
         holder.descriptionTextView.text = currentChallenge.desc
-        Log.d("AllChallengeAdapter", "Challenge: $currentChallenge")
     }
 }

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mefit.adapter.AllChallengeAdapter
@@ -45,12 +46,12 @@ class ChallengeFragment : Fragment() {
                     document.data["calories"].toString().toInt(), document.data["rewards"].toString().toInt()))
             }
 
-            Log.d("ChallengeFragment------", "Challenge: $challenge")
+
             binding.challengeRecyclerView.layoutManager = LinearLayoutManager(requireContext())
             binding.challengeRecyclerView.adapter = AllChallengeAdapter(challenge, requireContext(), challengesViewModel)
 
         }.addOnFailureListener {
-            Log.d("ChallengeFragment", "Error getting documents: ", it)
+            Toast.makeText(requireContext(), "Failed to fetch challenges", Toast.LENGTH_SHORT).show()
         }
 
 

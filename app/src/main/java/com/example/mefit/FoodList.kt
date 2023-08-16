@@ -36,13 +36,7 @@ class FoodList : AppCompatActivity() {
         sharedViewModel.type.postValue(type)
         sharedViewModel.updateAllFoodLists()
 
-        sharedViewModel.breakFastCalories.observe(this) {
-            Log.d("breakfastcal", "Breakfast: $it")
-        }
 
-        sharedViewModel.breakfastList.observe(this) {
-            Log.d("breakfastlist", "Breakfast: $it")
-        }
 
         if(type=="breakfast"){
             sharedViewModel.breakfastList.observe(this) {

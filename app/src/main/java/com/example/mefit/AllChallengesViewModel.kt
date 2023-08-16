@@ -13,6 +13,9 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.lang.System.currentTimeMillis
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AllChallengesViewModel: ViewModel(){
 
@@ -91,6 +94,34 @@ class AllChallengesViewModel: ViewModel(){
                 // Handle the error
             }
     }
+
+
+
+
+    fun displayOngoingDialog(challenge: UserChallenge, context: Context){
+        var desc = ""
+        desc += "Reward: " + challenge.rewards + "\n"
+        val endDateMillis = challenge.startTime + (challenge.duration * 24 * 60 * 60 * 1000)
+
+        val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+        val formattedDate = dateFormat.format(Date(endDateMillis))
+        desc += "Ends At: $formattedDate\n\n"
+        desc += challenge.desc + "\n\n"
+
+        val alertDialog = AlertDialog.Builder(context)
+            .setTitle(challenge.name)
+            .setMessage(desc)
+            .setNegativeButton("Got it") { dialogInterface: DialogInterface, _: Int ->
+                dialogInterface.dismiss()
+            }
+            .create()
+
+        alertDialog.show()
+
+
+    }
+
+
 }
 
 
