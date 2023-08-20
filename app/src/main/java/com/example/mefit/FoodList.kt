@@ -35,14 +35,28 @@ class FoodList : AppCompatActivity() {
         val type = intent.getStringExtra("type")
         sharedViewModel.type.postValue(type)
         sharedViewModel.updateAllFoodLists()
-
-
+        sharedViewModel.isLoading.postValue(true)
+        
+        sharedViewModel.isLoading.observe(this) {
+            if(it){
+                binding.progressBarAddFood.visibility = android.view.View.VISIBLE
+            }else{
+                binding.progressBarAddFood.visibility = android.view.View.GONE
+            }
+        }
 
         if(type=="breakfast"){
             sharedViewModel.breakfastList.observe(this) {
                 binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
                 binding.foodRecyclerView.adapter = FoodAdapter(it, sharedViewModel)
                 sharedViewModel.foodList.postValue(it)
+                if(it.isNotEmpty()){
+                    binding.foodListPlaceholderText.visibility = android.view.View.GONE
+                    binding.foodRecyclerView.visibility = android.view.View.VISIBLE
+                }else{
+                    binding.foodListPlaceholderText.visibility = android.view.View.VISIBLE
+                    binding.foodRecyclerView.visibility = android.view.View.GONE
+                }
             }
         }
         else if(type=="lunch"){
@@ -50,13 +64,30 @@ class FoodList : AppCompatActivity() {
                 binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
                 binding.foodRecyclerView.adapter = FoodAdapter(it, sharedViewModel)
                 sharedViewModel.foodList.postValue(it)
+
+                if(it.isNotEmpty()){
+                    binding.foodListPlaceholderText.visibility = android.view.View.GONE
+                    binding.foodRecyclerView.visibility = android.view.View.VISIBLE
+                }else{
+                    binding.foodListPlaceholderText.visibility = android.view.View.VISIBLE
+                    binding.foodRecyclerView.visibility = android.view.View.GONE
+                }
             }
+
+
         }
         else if(type=="snacks"){
             sharedViewModel.snacksList.observe(this) {
                 binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
                 binding.foodRecyclerView.adapter = FoodAdapter(it, sharedViewModel)
                 sharedViewModel.foodList.postValue(it)
+                if(it.isNotEmpty()){
+                    binding.foodListPlaceholderText.visibility = android.view.View.GONE
+                    binding.foodRecyclerView.visibility = android.view.View.VISIBLE
+                }else{
+                    binding.foodListPlaceholderText.visibility = android.view.View.VISIBLE
+                    binding.foodRecyclerView.visibility = android.view.View.GONE
+                }
             }
         }
         else if(type=="dinner"){
@@ -64,6 +95,13 @@ class FoodList : AppCompatActivity() {
                 binding.foodRecyclerView.layoutManager = LinearLayoutManager(this)
                 binding.foodRecyclerView.adapter = FoodAdapter(it, sharedViewModel)
                 sharedViewModel.foodList.postValue(it)
+                if(it.isNotEmpty()){
+                    binding.foodListPlaceholderText.visibility = android.view.View.GONE
+                    binding.foodRecyclerView.visibility = android.view.View.VISIBLE
+                }else{
+                    binding.foodListPlaceholderText.visibility = android.view.View.VISIBLE
+                    binding.foodRecyclerView.visibility = android.view.View.GONE
+                }
             }
         }
 
@@ -88,6 +126,9 @@ class FoodList : AppCompatActivity() {
         sharedViewModel.allFoodList.observe(this){
             binding.allFoodListRecyclerView.layoutManager = LinearLayoutManager(this)
             binding.allFoodListRecyclerView.adapter = AllFoodAdapter(it, sharedViewModel)
+            if(it.isNotEmpty()){
+                sharedViewModel.isLoading.postValue(false)
+            }
         }
 
 

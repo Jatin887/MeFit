@@ -16,7 +16,7 @@ class FoodSharedViewModel: ViewModel(){
     private var db = Firebase.firestore
     private var user = FirebaseAuth.getInstance().currentUser!!
     private var document = db.collection("users").document(user.uid)
-
+    var isLoading = MutableLiveData<Boolean>().apply { value = false }
 
     var breakfastList: MutableLiveData<List<Food>> = MutableLiveData()
     var lunchList= MutableLiveData<List<Food>>()
@@ -65,6 +65,21 @@ class FoodSharedViewModel: ViewModel(){
     fun addFoodToFirebase(food: Food) {
         addFood(food)
         document.update(type.value + "Consumed", foodList.value)
+        document.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot != null) {
+                    var consumedCalories = documentSnapshot.get("consumedCalories") as Long
+                    consumedCalories += food.calories
+                    document.update("consumedCalories", consumedCalories)
+                } else {
+                    // Document not found
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle the failure
+            }
+
+
         updateAllFoodLists()
     }
 
@@ -77,6 +92,19 @@ class FoodSharedViewModel: ViewModel(){
             foodList.value = updatedList
         }
         db.collection("users").document(user.uid).update(type.value + "Consumed", foodList.value)
+        document.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot != null) {
+                    var consumedCalories = documentSnapshot.get("consumedCalories") as Long
+                    consumedCalories -= food.calories
+                    document.update("consumedCalories", consumedCalories)
+                } else {
+                    // Document not found
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle the failure
+            }
         updateAllFoodLists()
     }
 

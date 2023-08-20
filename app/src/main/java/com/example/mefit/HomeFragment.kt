@@ -3,6 +3,7 @@ package com.example.mefit
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Half.toFloat
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -50,13 +51,13 @@ class HomeFragment : Fragment() {
         db.collection("users").document(user.uid).get().addOnSuccessListener {
             val name = it.get("name").toString()
             consumedCalories = it.get("consumedCalories").toString().toInt()
-            val total = it.get("totalCalories").toString()
-            val percentageConsumed =  ((consumedCalories.toFloat() / total.toFloat()) * 100).toInt()
+            val total = it.get("totalCalories")
+            val percentageConsumed =  ((consumedCalories.toFloat() / total.toString().toFloat()) * 100).toInt()
             goal = it.get("goal").toString()
             setupPieChart(percentageConsumed.toFloat())
             binding.greetingName.text = "Welcome $name"
             binding.consumedPercentage.text = "$percentageConsumed%"
-            binding.calorieGoal.text = "${total.toInt()}"
+            binding.calorieGoal.text = "${total.toString()} cal"
 
 
 

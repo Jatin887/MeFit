@@ -81,7 +81,13 @@ class AllChallengesViewModel: ViewModel(){
                 } else if(challenge.id !in userChallenges.map { it.id }) {
                     val updatedList = userChallenges.toMutableList()
                     updatedList.add(newChallenge)
-                    document.update("userChallenges", updatedList)
+                    document.update("userChallenges", updatedList).addOnCompleteListener {
+                        Toast.makeText(
+                            context,
+                            "Challenge Accepted",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }else{
                     Toast.makeText(
                        context,
