@@ -62,6 +62,7 @@ class HomeFragment : Fragment() {
 
 
             val _userChallenges = it.get("userChallenges")  as? List<HashMap<String, Any>>
+
             if(_userChallenges != null) {
                 userChallenges = _userChallenges.map { map ->
                     UserChallenge(
@@ -82,7 +83,7 @@ class HomeFragment : Fragment() {
         var completedChallenges = arrayListOf<UserChallenge>()
         var suggestedChallenges = arrayListOf<Challenge>()
 
-        db.collection("challenges").get().addOnSuccessListener {
+        db.collection("challenges").get().addOnSuccessListener { it ->
 
             suggestedChallenges = it.map { document ->
                 Challenge(
@@ -101,8 +102,10 @@ class HomeFragment : Fragment() {
 
                 //check if challenge is ongoing by checking if it is in userChallenges and that the current time is less than the timestamp of the challenge start time + duration
                 userChallenges.forEach { userChallenge ->
-                    if (userChallenge.id == challengeID && System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
+                    Log.d("HEREALL---", userChallenge.name  + (userChallenge.id !in onGoingChallenges.map { it.id }))
+                    if ( userChallenge.id !in onGoingChallenges.map { it.id } && System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
                         onGoingChallenges.add(userChallenge)
+                        Log.d("HERE---", userChallenge.name)
                     }
                 }
 

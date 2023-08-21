@@ -117,7 +117,15 @@ class AllChallengesViewModel: ViewModel(){
         val alertDialog = AlertDialog.Builder(context)
             .setTitle(challenge.name)
             .setMessage(desc)
-            .setNegativeButton("Got it") { dialogInterface: DialogInterface, _: Int ->
+            .setPositiveButton("Got it") { dialogInterface: DialogInterface, _: Int ->
+                dialogInterface.dismiss()
+            }
+            .setNegativeButton("Invite Friend") { dialogInterface: DialogInterface, _: Int ->
+                Toast.makeText(
+                    context,
+                    "Invite Sent to all Friends!",
+                    Toast.LENGTH_SHORT
+                ).show()
                 dialogInterface.dismiss()
             }
             .create()
