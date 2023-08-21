@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+
+    <EditText
+        android:id="@+id/id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="id"/>
+
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name"/>
+
+
+    <EditText
+        android:id="@+id/desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Description"/>
+
+    <EditText
+        android:id="@+id/editCalories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Calories"/>
+
+
+    <EditText
+        android:id="@+id/editDuration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Duration"/>
+
+
+    <EditText
+        android:id="@+id/rewards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Rewards"/>
+
+
+
+
+
+</LinearLayout>

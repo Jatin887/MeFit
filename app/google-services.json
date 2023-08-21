@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "539891410524",
+    "project_id": "mefit-3af7c",
+    "storage_bucket": "mefit-3af7c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539891410524:android:3e31236ed171bb72b06899",
+        "android_client_info": {
+          "package_name": "com.example.mefit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "539891410524-0ha42rf2jfduajajajlj2lh2f95p27cb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXEUQmeHbN3HwGSr-WX_w0LEFD-OP-Ols"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "539891410524-0ha42rf2jfduajajajlj2lh2f95p27cb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
