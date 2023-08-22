@@ -63,6 +63,13 @@ class HomeFragment : Fragment() {
         challengesViewModel.mainHomeSuggestedChallengeList.observe(viewLifecycleOwner){
             binding.suggestedChallengeList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             binding.suggestedChallengeList.adapter = AllChallengeAdapter(it, requireContext(), challengesViewModel)
+            if(it.size>0){
+                binding.suggestedChallengeList.visibility = View.VISIBLE
+                binding.textView4.visibility = View.VISIBLE
+            }else{
+                binding.suggestedChallengeList.visibility = View.GONE
+                binding.textView4.visibility = View.GONE
+            }
         }
 
         challengesViewModel.mainHomeOngoingChallengeList.observe(viewLifecycleOwner){
