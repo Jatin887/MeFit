@@ -147,13 +147,14 @@ class HomeFragment : Fragment() {
             binding.onGoingChallengeList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             binding.suggestedChallengeList.adapter = AllChallengeAdapter(suggestedChallenges, requireContext(), challengesViewModel)
             binding.onGoingChallengeList.adapter = ChallengeAdapter(onGoingChallenges, requireContext(), challengesViewModel)
-            binding.progressBarAddFood.visibility = View.GONE
+
            if(onGoingChallenges.size>0){
-               binding.textView5.visibility = View.VISIBLE
-                binding.onGoingChallengeList.visibility = View.VISIBLE
+               binding.progressBarAddFood.visibility = View.GONE
            }else{
-              /*  binding.textView5.visibility = View.GONE
-                binding.onGoingChallengeList.visibility = View.GONE*/
+
+               Toast.makeText(requireContext(), "Add ongoing challenges", Toast.LENGTH_SHORT).show()
+               //binding.textView5.visibility = View.VISIBLE
+               //binding.onGoingChallengeList.visibility = View.GONE
            }
 
             if(suggestedChallenges.size>0) {

@@ -160,8 +160,8 @@
 
                 <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
                     android:src="@drawable/hh5"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="25dp"
@@ -207,8 +207,8 @@
 
                 <ImageView
                     android:id="@+id/imageView2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
                     android:src="@drawable/hh2"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="25dp"
@@ -255,8 +255,8 @@
 
                 <ImageView
                     android:id="@+id/imageView3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
                     android:src="@drawable/hh3"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
@@ -304,13 +304,13 @@
 
                 <ImageView
                     android:id="@+id/imageView4"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="25dp"
                     android:layout_marginEnd="25dp"
                     android:layout_marginBottom="45dp"
-                    android:src="@drawable/hh4"
+                    android:src="@drawable/hh5"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
