@@ -48,6 +48,7 @@ class HomeFragment : Fragment() {
 
         challengesViewModel = ViewModelProvider(this)[AllChallengesViewModel::class.java]
 
+        binding.progressBarAddFood.visibility = View.VISIBLE
         db.collection("users").document(user.uid).get().addOnSuccessListener {
             val name = it.get("name").toString()
             consumedCalories = it.get("consumedCalories").toString().toInt()
@@ -102,7 +103,7 @@ class HomeFragment : Fragment() {
 
                 //check if challenge is ongoing by checking if it is in userChallenges and that the current time is less than the timestamp of the challenge start time + duration
                 userChallenges.forEach { userChallenge ->
-                    Log.d("HEREALL---", userChallenge.name  + (userChallenge.id !in onGoingChallenges.map { it.id }))
+                    Log.d("HEREALL---", userChallenge.name  + (userChallenge.id !in onGoingChallenges.map { it.id }) + (System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)))
                     if ( userChallenge.id !in onGoingChallenges.map { it.id } && System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
                         onGoingChallenges.add(userChallenge)
                         Log.d("HERE---", userChallenge.name)
@@ -146,13 +147,13 @@ class HomeFragment : Fragment() {
             binding.onGoingChallengeList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             binding.suggestedChallengeList.adapter = AllChallengeAdapter(suggestedChallenges, requireContext(), challengesViewModel)
             binding.onGoingChallengeList.adapter = ChallengeAdapter(onGoingChallenges, requireContext(), challengesViewModel)
-
+            binding.progressBarAddFood.visibility = View.GONE
            if(onGoingChallenges.size>0){
                binding.textView5.visibility = View.VISIBLE
                 binding.onGoingChallengeList.visibility = View.VISIBLE
            }else{
-                binding.textView5.visibility = View.GONE
-                binding.onGoingChallengeList.visibility = View.GONE
+              /*  binding.textView5.visibility = View.GONE
+                binding.onGoingChallengeList.visibility = View.GONE*/
            }
 
             if(suggestedChallenges.size>0) {
