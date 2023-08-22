@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,7 +44,10 @@ class HomeFragment : Fragment() {
 
 
         challengesViewModel = ViewModelProvider(this)[AllChallengesViewModel::class.java]
-        challengesViewModel.loadHomeChallenges()
+
+        challengesViewModel.isTrue.observe(viewLifecycleOwner){
+            challengesViewModel.loadHomeChallenges()
+        }
 
 
         db.collection("users").document(user.uid).get().addOnSuccessListener {
@@ -67,22 +71,27 @@ class HomeFragment : Fragment() {
                 binding.suggestedChallengeList.visibility = View.VISIBLE
                 binding.textView4.visibility = View.VISIBLE
             }else{
-                binding.suggestedChallengeList.visibility = View.GONE
+                //binding.suggestedChallengeList.visibility = View.GONE
                 binding.textView4.visibility = View.GONE
             }
         }
 
-        challengesViewModel.mainHomeOngoingChallengeList.observe(viewLifecycleOwner){
-            binding.onGoingChallengeList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+        challengesViewModel.mainHomeOngoingChallengeList.observe(viewLifecycleOwner) {
+            binding.onGoingChallengeList.layoutManager =
+                LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             binding.onGoingChallengeList.adapter = ChallengeAdapter(it, requireContext(), challengesViewModel)
-            if(it.size>0){
+            //notify adapter when data changes
+            binding.onGoingChallengeList.adapter?.notifyDataSetChanged()
+            if (it.size > 0) {
                 binding.onGoingChallengeList.visibility = View.VISIBLE
                 binding.textView5.visibility = View.VISIBLE
-            }else{
+            } else {
                 binding.onGoingChallengeList.visibility = View.GONE
                 binding.textView5.visibility = View.GONE
             }
+
         }
+
 
         challengesViewModel.mainHomeCompletedChallengeList.observe(viewLifecycleOwner){
             if( it.size > 0){

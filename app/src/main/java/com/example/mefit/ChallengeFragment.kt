@@ -149,11 +149,9 @@ class ChallengeFragment : Fragment() {
         }
 
         challengesViewModel.mainChallengeList.observe(viewLifecycleOwner) {
-            binding.challengeRecyclerView.layoutManager =
-                LinearLayoutManager(requireContext())
-            binding.challengeRecyclerView.adapter = AllChallengeAdapter(
-                it, requireContext(), challengesViewModel
-            )
+            Log.d("ChallengeFragment----", "onViewCreated: $it")
+            binding.challengeRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+            binding.challengeRecyclerView.adapter = AllChallengeAdapter(it, requireContext(), challengesViewModel)
         }
 
 

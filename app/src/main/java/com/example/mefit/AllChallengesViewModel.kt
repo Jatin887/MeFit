@@ -26,6 +26,7 @@ import java.util.Locale
 
 class AllChallengesViewModel: ViewModel(){
 
+    var isTrue = MutableLiveData<Boolean>().apply { value = true }
 
     private var db = Firebase.firestore
     private var user = FirebaseAuth.getInstance().currentUser!!
@@ -52,29 +53,32 @@ class AllChallengesViewModel: ViewModel(){
                         )
                     }
                 }
-                mainUserChallengeList.value = userChallenges
+                mainUserChallengeList.postValue(userChallenges)
+
+                db.collection("challenges").get().addOnSuccessListener { result ->
+                    var _challengess = mutableListOf<Challenge>()
+                    for (document in result) {
+                        //check if the challenge is already added by the user
+                        if(mainUserChallengeList.value?.map { it.id }
+                                ?.contains(document.data["id"].toString()) == true){
+                            continue
+                        }
+                        _challengess.add(Challenge(document.data["name"].toString(), document.data["desc"].toString(),
+                            document.data["id"].toString(), document.data["duration"].toString().toInt(),
+                            document.data["calories"].toString().toInt(), document.data["rewards"].toString().toInt()))
+                    }
+                    mainChallengeList.postValue(_challengess)
+
+
+                }.addOnFailureListener {
+                    //Toast.makeText(requireContext(), "Failed to fetch challenges", Toast.LENGTH_SHORT).show()
+                }
 
             }
             .addOnFailureListener { e ->
                 // Handle the error
             }
-        db.collection("challenges").get().addOnSuccessListener { result ->
-            var _challengess = mutableListOf<Challenge>()
-            for (document in result) {
-                //check if the challenge is already added by the user
-                if(document.data["id"].toString() in mainUserChallengeList.value?.map { it.id }!!){
-                    continue
-                }
-                _challengess.add(Challenge(document.data["name"].toString(), document.data["desc"].toString(),
-                    document.data["id"].toString(), document.data["duration"].toString().toInt(),
-                    document.data["calories"].toString().toInt(), document.data["rewards"].toString().toInt()))
-            }
-            mainChallengeList.value = _challengess
 
-
-        }.addOnFailureListener {
-            //Toast.makeText(requireContext(), "Failed to fetch challenges", Toast.LENGTH_SHORT).show()
-        }
     }
 
 
@@ -130,6 +134,14 @@ class AllChallengesViewModel: ViewModel(){
                 }
                 if (userChallenges.isNullOrEmpty()) {
                     document.update("userChallenges", listOf(newChallenge))
+                    Toast.makeText(
+                        context,
+                        "Challenge Accepted",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    mainChallengeList.postValue(mainChallengeList.value?.filter { it.id != challenge.id })
+                    mainHomeSuggestedChallengeList.postValue(mainHomeSuggestedChallengeList.value?.filter { it.id != challenge.id })
+                    mainHomeOngoingChallengeList.postValue(listOf(newChallenge))
                 } else if(challenge.id !in userChallenges.map { it.id }) {
                     val updatedList = userChallenges.toMutableList()
                     updatedList.add(newChallenge)
@@ -141,8 +153,9 @@ class AllChallengesViewModel: ViewModel(){
                         ).show()
                     }
                     //uodate mainchallenge list and notify adapter
-                    mainChallengeList.value = mainChallengeList.value?.filter { it.id != challenge.id }
-                    mainHomeSuggestedChallengeList.value = mainHomeSuggestedChallengeList.value?.filter { it.id != challenge.id }
+                    mainChallengeList.postValue(mainChallengeList.value?.filter { it.id != challenge.id })
+                    mainHomeSuggestedChallengeList.postValue(mainHomeSuggestedChallengeList.value?.filter { it.id != challenge.id })
+                    mainHomeOngoingChallengeList.postValue(updatedList)
                 }else{
                     Toast.makeText(
                        context,
@@ -228,117 +241,120 @@ class AllChallengesViewModel: ViewModel(){
                 } as ArrayList<UserChallenge>
             }
 
-        }
 
+            db.collection("challenges").get().addOnSuccessListener { it ->
 
-        db.collection("challenges").get().addOnSuccessListener { it ->
-
-            homeSuggestedChallenges = it.map { document ->
-                Challenge(
-                    document.get("name").toString(),
-                    document.get("desc").toString(),
-                    document.get("id").toString(),
-                    document.get("duration").toString().toInt(),
-                    document.get("calories").toString().toInt(),
-                    document.get("rewards").toString().toInt(),
-                )
-            } as ArrayList<Challenge>
-
-            for (document in it) {
-
-                val challengeID = document.get("id").toString()
-
-                //check if challenge is ongoing by checking if it is in userChallenges and that the current time is less than the timestamp of the challenge start time + duration
-                homeUserChallenges.forEach { userChallenge ->
-                    Log.d(
-                        "HEREALL---",
-                        userChallenge.name + (userChallenge.id !in homeOnGoingChallenges.map { it.id }) + (System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24))
+                homeSuggestedChallenges = it.map { document ->
+                    Challenge(
+                        document.get("name").toString(),
+                        document.get("desc").toString(),
+                        document.get("id").toString(),
+                        document.get("duration").toString().toInt(),
+                        document.get("calories").toString().toInt(),
+                        document.get("rewards").toString().toInt(),
                     )
-                    if (userChallenge.id !in homeOnGoingChallenges.map { it.id } && System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
-                        homeOnGoingChallenges.add(userChallenge)
-                        Log.d("HERE---", userChallenge.name)
+                } as ArrayList<Challenge>
+
+                for (document in it) {
+
+                    val challengeID = document.get("id").toString()
+
+                    //check if challenge is ongoing by checking if it is in userChallenges and that the current time is less than the timestamp of the challenge start time + duration
+                    homeUserChallenges.forEach { userChallenge ->
+                        Log.d(
+                            "HEREALL---",
+                            userChallenge.name + (userChallenge.id !in homeOnGoingChallenges.map { it.id }) + (System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24))
+                        )
+                        if (userChallenge.id !in homeOnGoingChallenges.map { it.id } && System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
+                            homeOnGoingChallenges.add(userChallenge)
+                            Log.d("HERE---", userChallenge.name)
+                        }
+                    }
+
+                    //check if challenge is completed by checking if it is in userChallenges and that the current time is greater than the timestamp of the challenge start time + duration
+                    homeUserChallenges.forEach { userChallenge ->
+                        Log.d(
+                            "TAG",
+                            ("ongoingchallenge  " + System.currentTimeMillis() > ((userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24).toString())).toString()
+                        )
+
+                        if (userChallenge.id == challengeID && System.currentTimeMillis() > (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
+                            homeCompletedChallenges.add(userChallenge)
+                        }
+                    }
+
+                }
+
+                val filteredSuggestedChallenges = arrayListOf<Challenge>()
+                for (i in homeSuggestedChallenges) {
+                    var isPresent = false
+                    for (j in homeOnGoingChallenges) {
+                        if (i.id == j.id) {
+                            isPresent = true
+                            break
+                        }
+                    }
+                    for (j in homeCompletedChallenges) {
+                        if (i.id == j.id) {
+                            isPresent = true
+                            break
+                        }
+                    }
+                    if (!isPresent) {
+                        filteredSuggestedChallenges.add(i)
                     }
                 }
+                homeSuggestedChallenges = filteredSuggestedChallenges
+                mainHomeSuggestedChallengeList.postValue(homeSuggestedChallenges)
+                mainHomeCompletedChallengeList.postValue(homeCompletedChallenges)
+                mainHomeOngoingChallengeList.postValue(homeOnGoingChallenges)
 
-                //check if challenge is completed by checking if it is in userChallenges and that the current time is greater than the timestamp of the challenge start time + duration
-                homeUserChallenges.forEach { userChallenge ->
-                    Log.d(
-                        "TAG",
-                        ("ongoingchallenge  " + System.currentTimeMillis() > ((userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24).toString())).toString()
-                    )
-
-                    if (userChallenge.id == challengeID && System.currentTimeMillis() > (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
-                        homeCompletedChallenges.add(userChallenge)
-                    }
-                }
-
-            }
-
-            val filteredSuggestedChallenges = arrayListOf<Challenge>()
-            for (i in homeSuggestedChallenges) {
-                var isPresent = false
-                for (j in homeOnGoingChallenges) {
-                    if (i.id == j.id) {
-                        isPresent = true
-                        break
-                    }
-                }
-                for (j in homeCompletedChallenges) {
-                    if (i.id == j.id) {
-                        isPresent = true
-                        break
-                    }
-                }
-                if (!isPresent) {
-                    filteredSuggestedChallenges.add(i)
-                }
-            }
-            homeSuggestedChallenges = filteredSuggestedChallenges
-            mainHomeSuggestedChallengeList.value = homeSuggestedChallenges
-            mainHomeCompletedChallengeList.value = homeCompletedChallenges
-            mainHomeOngoingChallengeList.value = homeOnGoingChallenges
-
-            /*
-            if(homeOnGoingChallenges.size>0){
-                binding.progressBarAddFood.visibility = View.GONE
-            }else{
-
-                Toast.makeText(requireContext(), "No ongoing challenges", Toast.LENGTH_SHORT).show()
-                //binding.textView5.visibility = View.VISIBLE
-                //binding.onGoingChallengeList.visibility = View.GONE
-            }
-
-            if(homeSuggestedChallenges.size>0) {
-                binding.textView4.visibility = View.VISIBLE
-                binding.suggestedChallengeList.visibility = View.VISIBLE
-            }else{
-                binding.textView4.visibility = View.GONE
-                binding.suggestedChallengeList.visibility = View.GONE
-            }
-
-
-            if( homeCompletedChallenges.size > 0){
-                binding.cardView.visibility = View.VISIBLE
-                val lastChallenge = homeCompletedChallenges.last()
-                var lastPassed = getLastPassedStatus(lastChallenge)
-                binding.textView7.text = "Total Rewards: ${getTotalRewards(completedChallenges)}"
-                if(lastPassed) {
-                    binding.lastMilestoneChallenge.text = lastChallenge.name + ": ${lastChallenge.rewards} rewards earned"
+                /*
+                if(homeOnGoingChallenges.size>0){
+                    binding.progressBarAddFood.visibility = View.GONE
                 }else{
-                    binding.lastMilestoneChallenge.text = lastChallenge.name + ": 0 rewards earned (Failed)"
+
+                    Toast.makeText(requireContext(), "No ongoing challenges", Toast.LENGTH_SHORT).show()
+                    //binding.textView5.visibility = View.VISIBLE
+                    //binding.onGoingChallengeList.visibility = View.GONE
                 }
+
+                if(homeSuggestedChallenges.size>0) {
+                    binding.textView4.visibility = View.VISIBLE
+                    binding.suggestedChallengeList.visibility = View.VISIBLE
+                }else{
+                    binding.textView4.visibility = View.GONE
+                    binding.suggestedChallengeList.visibility = View.GONE
+                }
+
+
+                if( homeCompletedChallenges.size > 0){
+                    binding.cardView.visibility = View.VISIBLE
+                    val lastChallenge = homeCompletedChallenges.last()
+                    var lastPassed = getLastPassedStatus(lastChallenge)
+                    binding.textView7.text = "Total Rewards: ${getTotalRewards(completedChallenges)}"
+                    if(lastPassed) {
+                        binding.lastMilestoneChallenge.text = lastChallenge.name + ": ${lastChallenge.rewards} rewards earned"
+                    }else{
+                        binding.lastMilestoneChallenge.text = lastChallenge.name + ": 0 rewards earned (Failed)"
+                    }
+                }
+                else{
+                    binding.cardView.visibility = View.GONE
+                }
+
             }
-            else{
-                binding.cardView.visibility = View.GONE
+                .addOnFailureListener{
+                    Toast.makeText(requireContext(), "Error getting challenges", Toast.LENGTH_SHORT).show()
+                }*/
+
+
             }
 
         }
-            .addOnFailureListener{
-                Toast.makeText(requireContext(), "Error getting challenges", Toast.LENGTH_SHORT).show()
-            }*/
 
 
-        }
+
 
 
     }
