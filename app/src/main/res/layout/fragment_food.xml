@@ -162,7 +162,7 @@
                     android:id="@+id/imageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/h3"
+                    android:src="@drawable/hh5"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="25dp"
                     android:layout_marginEnd="25dp"
@@ -191,7 +191,6 @@
             android:id="@+id/card_view_4"
             android:layout_width="0dp"
             android:layout_height="0dp"
-
             android:layout_row="0"
             android:layout_rowWeight="1"
             android:layout_column="1"
@@ -210,7 +209,7 @@
                     android:id="@+id/imageView2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/h3"
+                    android:src="@drawable/hh2"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="25dp"
                     android:layout_marginEnd="25dp"
@@ -258,7 +257,9 @@
                     android:id="@+id/imageView3"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/h3"
+                    android:src="@drawable/hh3"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="25dp"
                     android:layout_marginEnd="25dp"
@@ -298,18 +299,18 @@
             app:layout_constraintTop_toTopOf="@+id/guideline3">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_width="204dp"
+                android:layout_height="320dp">
 
                 <ImageView
                     android:id="@+id/imageView4"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/h3"
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="25dp"
                     android:layout_marginEnd="25dp"
                     android:layout_marginBottom="45dp"
+                    android:src="@drawable/hh4"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -318,11 +319,11 @@
                     android:id="@+id/dinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="Dinner"
                     android:textColor="@color/black"
                     android:textSize="15dp"
                     android:textStyle="bold"
-                    android:gravity="center"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/imageView4" />
