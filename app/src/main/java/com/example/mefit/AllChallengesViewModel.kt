@@ -4,12 +4,15 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mefit.adapter.AllChallengeAdapter
+import com.example.mefit.adapter.ChallengeAdapter
 import com.example.mefit.model.Challenge
 import com.example.mefit.model.UserChallenge
 import com.google.firebase.auth.FirebaseAuth
@@ -139,6 +142,7 @@ class AllChallengesViewModel: ViewModel(){
                     }
                     //uodate mainchallenge list and notify adapter
                     mainChallengeList.value = mainChallengeList.value?.filter { it.id != challenge.id }
+                    mainHomeSuggestedChallengeList.value = mainHomeSuggestedChallengeList.value?.filter { it.id != challenge.id }
                 }else{
                     Toast.makeText(
                        context,
@@ -190,6 +194,154 @@ class AllChallengesViewModel: ViewModel(){
 
 
 
+    //home screen
+    var mainHomeOngoingChallengeList = MutableLiveData<List<UserChallenge>>()
+    var mainHomeCompletedChallengeList = MutableLiveData<List<UserChallenge>>()
+    var mainHomeSuggestedChallengeList = MutableLiveData<List<Challenge>>()
+
+
+
+
+
+
+    var homeUserChallenges =  arrayListOf<UserChallenge>()
+    var homeOnGoingChallenges = arrayListOf<UserChallenge>()
+    var homeCompletedChallenges = arrayListOf<UserChallenge>()
+    var homeSuggestedChallenges = arrayListOf<Challenge>()
+    fun loadHomeChallenges() {
+
+        db.collection("users").document(user.uid).get().addOnSuccessListener {
+
+            val _userChallenges = it.get("userChallenges") as? List<HashMap<String, Any>>
+
+            if (_userChallenges != null) {
+                homeUserChallenges = _userChallenges.map { map ->
+                    UserChallenge(
+                        map["name"].toString(),
+                        map["desc"].toString(),
+                        map["id"].toString(),
+                        map["duration"].toString().toInt(),
+                        map["calories"].toString().toInt(),
+                        map["rewards"].toString().toInt(),
+                        map["startTime"].toString().toLong(),
+                    )
+                } as ArrayList<UserChallenge>
+            }
+
+        }
+
+
+        db.collection("challenges").get().addOnSuccessListener { it ->
+
+            homeSuggestedChallenges = it.map { document ->
+                Challenge(
+                    document.get("name").toString(),
+                    document.get("desc").toString(),
+                    document.get("id").toString(),
+                    document.get("duration").toString().toInt(),
+                    document.get("calories").toString().toInt(),
+                    document.get("rewards").toString().toInt(),
+                )
+            } as ArrayList<Challenge>
+
+            for (document in it) {
+
+                val challengeID = document.get("id").toString()
+
+                //check if challenge is ongoing by checking if it is in userChallenges and that the current time is less than the timestamp of the challenge start time + duration
+                homeUserChallenges.forEach { userChallenge ->
+                    Log.d(
+                        "HEREALL---",
+                        userChallenge.name + (userChallenge.id !in homeOnGoingChallenges.map { it.id }) + (System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24))
+                    )
+                    if (userChallenge.id !in homeOnGoingChallenges.map { it.id } && System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
+                        homeOnGoingChallenges.add(userChallenge)
+                        Log.d("HERE---", userChallenge.name)
+                    }
+                }
+
+                //check if challenge is completed by checking if it is in userChallenges and that the current time is greater than the timestamp of the challenge start time + duration
+                homeUserChallenges.forEach { userChallenge ->
+                    Log.d(
+                        "TAG",
+                        ("ongoingchallenge  " + System.currentTimeMillis() > ((userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24).toString())).toString()
+                    )
+
+                    if (userChallenge.id == challengeID && System.currentTimeMillis() > (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
+                        homeCompletedChallenges.add(userChallenge)
+                    }
+                }
+
+            }
+
+            val filteredSuggestedChallenges = arrayListOf<Challenge>()
+            for (i in homeSuggestedChallenges) {
+                var isPresent = false
+                for (j in homeOnGoingChallenges) {
+                    if (i.id == j.id) {
+                        isPresent = true
+                        break
+                    }
+                }
+                for (j in homeCompletedChallenges) {
+                    if (i.id == j.id) {
+                        isPresent = true
+                        break
+                    }
+                }
+                if (!isPresent) {
+                    filteredSuggestedChallenges.add(i)
+                }
+            }
+            homeSuggestedChallenges = filteredSuggestedChallenges
+            mainHomeSuggestedChallengeList.value = homeSuggestedChallenges
+            mainHomeCompletedChallengeList.value = homeCompletedChallenges
+            mainHomeOngoingChallengeList.value = homeOnGoingChallenges
+
+            /*
+            if(homeOnGoingChallenges.size>0){
+                binding.progressBarAddFood.visibility = View.GONE
+            }else{
+
+                Toast.makeText(requireContext(), "No ongoing challenges", Toast.LENGTH_SHORT).show()
+                //binding.textView5.visibility = View.VISIBLE
+                //binding.onGoingChallengeList.visibility = View.GONE
+            }
+
+            if(homeSuggestedChallenges.size>0) {
+                binding.textView4.visibility = View.VISIBLE
+                binding.suggestedChallengeList.visibility = View.VISIBLE
+            }else{
+                binding.textView4.visibility = View.GONE
+                binding.suggestedChallengeList.visibility = View.GONE
+            }
+
+
+            if( homeCompletedChallenges.size > 0){
+                binding.cardView.visibility = View.VISIBLE
+                val lastChallenge = homeCompletedChallenges.last()
+                var lastPassed = getLastPassedStatus(lastChallenge)
+                binding.textView7.text = "Total Rewards: ${getTotalRewards(completedChallenges)}"
+                if(lastPassed) {
+                    binding.lastMilestoneChallenge.text = lastChallenge.name + ": ${lastChallenge.rewards} rewards earned"
+                }else{
+                    binding.lastMilestoneChallenge.text = lastChallenge.name + ": 0 rewards earned (Failed)"
+                }
+            }
+            else{
+                binding.cardView.visibility = View.GONE
+            }
+
+        }
+            .addOnFailureListener{
+                Toast.makeText(requireContext(), "Error getting challenges", Toast.LENGTH_SHORT).show()
+            }*/
+
+
+        }
+
+
+    }
 }
 
 

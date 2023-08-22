@@ -175,6 +175,7 @@
                 android:layout_marginTop="15dp"
                 android:indeterminateTint="@color/nayablue"
                 android:padding="15dp"
+                android:visibility="gone"
                 android:progressTint="@color/nayablue"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

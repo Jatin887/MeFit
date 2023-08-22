@@ -3,20 +3,16 @@ package com.example.mefit
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Half.toFloat
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mefit.adapter.AllChallengeAdapter
 import com.example.mefit.adapter.ChallengeAdapter
 import com.example.mefit.databinding.FragmentHomeBinding
-import com.example.mefit.model.Challenge
 import com.example.mefit.model.UserChallenge
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
@@ -47,8 +43,9 @@ class HomeFragment : Fragment() {
 
 
         challengesViewModel = ViewModelProvider(this)[AllChallengesViewModel::class.java]
+        challengesViewModel.loadHomeChallenges()
 
-        binding.progressBarAddFood.visibility = View.VISIBLE
+
         db.collection("users").document(user.uid).get().addOnSuccessListener {
             val name = it.get("name").toString()
             consumedCalories = it.get("consumedCalories").toString().toInt()
@@ -60,117 +57,32 @@ class HomeFragment : Fragment() {
             binding.consumedPercentage.text = "$percentageConsumed%"
             binding.calorieGoal.text = "${total.toString()} cal"
 
-
-
-            val _userChallenges = it.get("userChallenges")  as? List<HashMap<String, Any>>
-
-            if(_userChallenges != null) {
-                userChallenges = _userChallenges.map { map ->
-                    UserChallenge(
-                        map["name"].toString(),
-                        map["desc"].toString(),
-                        map["id"].toString(),
-                        map["duration"].toString().toInt(),
-                        map["calories"].toString().toInt(),
-                        map["rewards"].toString().toInt(),
-                        map["startTime"].toString().toLong(),
-                    )
-                } as ArrayList<UserChallenge>
-            }
-
         }
 
-        var onGoingChallenges = arrayListOf<UserChallenge>()
-        var completedChallenges = arrayListOf<UserChallenge>()
-        var suggestedChallenges = arrayListOf<Challenge>()
 
-        db.collection("challenges").get().addOnSuccessListener { it ->
-
-            suggestedChallenges = it.map { document ->
-                Challenge(
-                    document.get("name").toString(),
-                    document.get("desc").toString(),
-                    document.get("id").toString(),
-                    document.get("duration").toString().toInt(),
-                    document.get("calories").toString().toInt(),
-                    document.get("rewards").toString().toInt(),
-                )
-            } as ArrayList<Challenge>
-
-            for (document in it) {
-
-                val challengeID = document.get("id").toString()
-
-                //check if challenge is ongoing by checking if it is in userChallenges and that the current time is less than the timestamp of the challenge start time + duration
-                userChallenges.forEach { userChallenge ->
-                    Log.d("HEREALL---", userChallenge.name  + (userChallenge.id !in onGoingChallenges.map { it.id }) + (System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)))
-                    if ( userChallenge.id !in onGoingChallenges.map { it.id } && System.currentTimeMillis() < (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
-                        onGoingChallenges.add(userChallenge)
-                        Log.d("HERE---", userChallenge.name)
-                    }
-                }
-
-                //check if challenge is completed by checking if it is in userChallenges and that the current time is greater than the timestamp of the challenge start time + duration
-                userChallenges.forEach { userChallenge ->
-                    Log.d("TAG",
-                        ("ongoingchallenge  " + System.currentTimeMillis() > ((userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24).toString())).toString()
-                    )
-
-                    if (userChallenge.id == challengeID && System.currentTimeMillis() > (userChallenge.startTime + userChallenge.duration * 1000 * 60 * 60 * 24)) {
-                        completedChallenges.add(userChallenge)
-                    }
-                }
-
-            }
-
-            val filteredSuggestedChallenges = arrayListOf<Challenge>()
-            for(i in suggestedChallenges){
-                var isPresent = false
-                for(j in onGoingChallenges){
-                    if(i.id == j.id){
-                        isPresent = true
-                        break
-                    }
-                }
-                for(j in completedChallenges){
-                    if(i.id == j.id){
-                        isPresent = true
-                        break
-                    }
-                }
-                if(!isPresent){
-                    filteredSuggestedChallenges.add(i)
-                }
-            }
-            suggestedChallenges = filteredSuggestedChallenges
+        challengesViewModel.mainHomeSuggestedChallengeList.observe(viewLifecycleOwner){
             binding.suggestedChallengeList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+            binding.suggestedChallengeList.adapter = AllChallengeAdapter(it, requireContext(), challengesViewModel)
+        }
+
+        challengesViewModel.mainHomeOngoingChallengeList.observe(viewLifecycleOwner){
             binding.onGoingChallengeList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
-            binding.suggestedChallengeList.adapter = AllChallengeAdapter(suggestedChallenges, requireContext(), challengesViewModel)
-            binding.onGoingChallengeList.adapter = ChallengeAdapter(onGoingChallenges, requireContext(), challengesViewModel)
-
-           if(onGoingChallenges.size>0){
-               binding.progressBarAddFood.visibility = View.GONE
-           }else{
-
-               Toast.makeText(requireContext(), "Add ongoing challenges", Toast.LENGTH_SHORT).show()
-               //binding.textView5.visibility = View.VISIBLE
-               //binding.onGoingChallengeList.visibility = View.GONE
-           }
-
-            if(suggestedChallenges.size>0) {
-                binding.textView4.visibility = View.VISIBLE
-                binding.suggestedChallengeList.visibility = View.VISIBLE
+            binding.onGoingChallengeList.adapter = ChallengeAdapter(it, requireContext(), challengesViewModel)
+            if(it.size>0){
+                binding.onGoingChallengeList.visibility = View.VISIBLE
+                binding.textView5.visibility = View.VISIBLE
             }else{
-                binding.textView4.visibility = View.GONE
-                binding.suggestedChallengeList.visibility = View.GONE
+                binding.onGoingChallengeList.visibility = View.GONE
+                binding.textView5.visibility = View.GONE
             }
+        }
 
-
-            if(completedChallenges.size > 0){
+        challengesViewModel.mainHomeCompletedChallengeList.observe(viewLifecycleOwner){
+            if( it.size > 0){
                 binding.cardView.visibility = View.VISIBLE
-                val lastChallenge = completedChallenges.last()
+                val lastChallenge = it.last()
                 var lastPassed = getLastPassedStatus(lastChallenge)
-                binding.textView7.text = "Total Rewards: ${getTotalRewards(completedChallenges)}"
+                binding.textView7.text = "Total Rewards: ${getTotalRewards(it)}"
                 if(lastPassed) {
                     binding.lastMilestoneChallenge.text = lastChallenge.name + ": ${lastChallenge.rewards} rewards earned"
                 }else{
@@ -180,11 +92,7 @@ class HomeFragment : Fragment() {
             else{
                 binding.cardView.visibility = View.GONE
             }
-
         }
-            .addOnFailureListener{
-               Toast.makeText(requireContext(), "Error getting challenges", Toast.LENGTH_SHORT).show()
-            }
 
 
 
@@ -196,6 +104,8 @@ class HomeFragment : Fragment() {
             requireActivity().finish()
         }
     }
+
+
 
     private fun getLastPassedStatus(lastChallenge: UserChallenge): Boolean {
 
@@ -212,12 +122,12 @@ class HomeFragment : Fragment() {
         return false
     }
 
-    private fun getTotalRewards(completedChallenges: ArrayList<UserChallenge>): String {
+    private fun getTotalRewards(completedChallenges: List<UserChallenge>): String {
         var totalRewards = 0
         completedChallenges.forEach {
 
             if(goal=="Muscle Building" || goal=="Weight Gain"){
-            if(consumedCalories>=it.calories){
+                if(consumedCalories>=it.calories){
                     totalRewards += it.rewards
                 }
             }
@@ -231,6 +141,7 @@ class HomeFragment : Fragment() {
         return totalRewards.toString()
 
     }
+
 
     private fun setupPieChart(consumedPercentage: Float) {
         val pieChart = binding.imageView5
